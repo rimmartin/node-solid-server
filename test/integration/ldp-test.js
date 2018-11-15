@@ -132,7 +132,7 @@ describe('LDP', function () {
     it('should fail if a trailing `/` is passed', function (done) {
       var stream = stringToStream('hello world')
       ldp.putStream('localhost', '/resources/', stream, function (err) {
-        assert.equal(err.status, 409)
+        assert.equal(err.status, 405)
         done()
       })
     })

@@ -172,7 +172,7 @@ describe('ACL with WebID+TLS', function () {
         options.body = ''
         request.put(options, function (error, response, body) {
           assert.equal(error, null)
-          assert.equal(response.statusCode, 409)
+          assert.equal(response.statusCode, 405)
           done()
         })
       })
