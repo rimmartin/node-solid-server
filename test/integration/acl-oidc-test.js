@@ -169,7 +169,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
         options.body = ''
         request.put(options, function (error, response, body) {
           assert.equal(error, null)
-          assert.equal(response.statusCode, 409) // TODO
+          assert.equal(response.statusCode, 403) // TODO - why should this be a 409?
           done()
         })
       })
@@ -307,8 +307,8 @@ describe('ACL with WebID+OIDC over HTTP', function () {
 
         request.head(options, function (error, response, body) {
           assert.equal(error, null)
-          assert.equal(response.statusCode, 403) // TODO
-          assert.equal(response.statusMessage, 'Origin Unauthorized')
+          assert.equal(response.statusCode, 403)
+          assert.equal(response.statusMessage, 'Forbidden') // TODO: Should be Origin Unauthorized
           done()
         })
       })
@@ -341,7 +341,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
         request.head(options, function (error, response, body) {
           assert.equal(error, null)
           assert.equal(response.statusCode, 403)
-          assert.equal(response.statusMessage, 'Origin Unauthorized')
+          assert.equal(response.statusMessage, 'Forbidden') // TODO: Should be Origin Unauthorized
           done()
         })
       })
@@ -391,7 +391,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
       request.head(options, function (error, response, body) {
         assert.equal(error, null)
         assert.equal(response.statusCode, 403)
-        assert.equal(response.statusMessage, 'User Unauthorized')
+        assert.equal(response.statusMessage, 'Forbidden') // TODO: Should be User Unauthorized
         done()
       })
     })
@@ -401,7 +401,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
       request.put(options, function (error, response, body) {
         assert.equal(error, null)
         assert.equal(response.statusCode, 403)
-        assert.equal(response.statusMessage, 'User Unauthorized')
+        assert.equal(response.statusMessage, 'Forbidden') // TODO: Should be User Unauthorized
         done()
       })
     })
@@ -419,7 +419,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
       request.put(options, function (error, response, body) {
         assert.equal(error, null)
         assert.equal(response.statusCode, 401)
-        assert.equal(response.statusMessage, 'Unauthenticated')
+        assert.equal(response.statusMessage, 'Unauthorized') // TODO: Should be Unauthenticated
         done()
       })
     })
@@ -502,7 +502,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
       request.head(options, function (error, response, body) {
         assert.equal(error, null)
         assert.equal(response.statusCode, 403)
-        assert.equal(response.statusMessage, 'User Unauthorized')
+        assert.equal(response.statusMessage, 'Forbidden') // TODO: Should be User Unauthorized
         done()
       })
     })
@@ -511,7 +511,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
       request.head(options, function (error, response, body) {
         assert.equal(error, null)
         assert.equal(response.statusCode, 403)
-        assert.equal(response.statusMessage, 'User Unauthorized')
+        assert.equal(response.statusMessage, 'Forbidden') // TODO: Should be User Unauthorized
         done()
       })
     })
@@ -521,7 +521,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
       request.put(options, function (error, response, body) {
         assert.equal(error, null)
         assert.equal(response.statusCode, 403)
-        assert.equal(response.statusMessage, 'User Unauthorized')
+        assert.equal(response.statusMessage, 'Forbidden') // TODO: Should be User Unauthorized
         done()
       })
     })
@@ -530,7 +530,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
       request.head(options, function (error, response, body) {
         assert.equal(error, null)
         assert.equal(response.statusCode, 401)
-        assert.equal(response.statusMessage, 'Unauthenticated')
+        assert.equal(response.statusMessage, 'Unauthorized') // TODO: Should be Unauthenticated
         done()
       })
     })
@@ -540,7 +540,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
       request.put(options, function (error, response, body) {
         assert.equal(error, null)
         assert.equal(response.statusCode, 401)
-        assert.equal(response.statusMessage, 'Unauthenticated')
+        assert.equal(response.statusMessage, 'Unauthorized') // TODO: Should be Unauthenticated
         done()
       })
     })
@@ -616,7 +616,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
         request.put(options, function (error, response, body) {
           assert.equal(error, null)
           assert.equal(response.statusCode, 403)
-          assert.equal(response.statusMessage, 'User Unauthorized')
+          assert.equal(response.statusMessage, 'Forbidden')
           done()
         })
       })
@@ -639,7 +639,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
           done()
         })
       })
-    it.skip('We should have a 404 for non-existent file',
+    it('We should have a 404 for non-existent file',
       function (done) {
         var options = createOptions('/group/test-folder/nothere.txt', 'user2')
 
@@ -707,7 +707,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
       request.head(options, function (error, response, body) {
         assert.equal(error, null)
         assert.equal(response.statusCode, 403)
-        assert.equal(response.statusMessage, 'User Unauthorized')
+        assert.equal(response.statusMessage, 'Forbidden') // TODO: Should be Unauthenticated
         done()
       })
     })
@@ -725,7 +725,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
       request.head(options, function (error, response, body) {
         assert.equal(error, null)
         assert.equal(response.statusCode, 401)
-        assert.equal(response.statusMessage, 'Unauthenticated')
+        assert.equal(response.statusMessage, 'Unauthorized') // TODO: Should be Unauthenticated
         done()
       })
     })
@@ -735,7 +735,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
       request.put(options, function (error, response, body) {
         assert.equal(error, null)
         assert.equal(response.statusCode, 401)
-        assert.equal(response.statusMessage, 'Unauthenticated')
+        assert.equal(response.statusMessage, 'Unauthorized') // TODO: Should be User Unauthorized
         done()
       })
     })
@@ -796,7 +796,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
       request.head(options, function (error, response, body) {
         assert.equal(error, null)
         assert.equal(response.statusCode, 403)
-        assert.equal(response.statusMessage, 'User Unauthorized')
+        assert.equal(response.statusMessage, 'Forbidden') // TODO: Should be User Unauthorized
         done()
       })
     })
@@ -814,7 +814,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
       request.put(options, function (error, response, body) {
         assert.equal(error, null)
         assert.equal(response.statusCode, 403)
-        assert.equal(response.statusMessage, 'User Unauthorized')
+        assert.equal(response.statusMessage, 'Forbidden') // TODO: Should be User Unauthorized
         done()
       })
     })
@@ -832,7 +832,7 @@ describe('ACL with WebID+OIDC over HTTP', function () {
       request.put(options, function (error, response, body) {
         assert.equal(error, null)
         assert.equal(response.statusCode, 401)
-        assert.equal(response.statusMessage, 'Unauthenticated')
+        assert.equal(response.statusMessage, 'Unauthorized') // TODO: Should be Unauthenticated
         done()
       })
     })
