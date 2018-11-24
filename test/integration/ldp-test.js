@@ -42,33 +42,29 @@ describe('LDP', function () {
   })
 
   describe('readContainerMeta', function () {
-    it('should return 404 if .meta is not found', function (done) {
-      ldp.readContainerMeta('resources/', function (err) {
-        assert.equal(err.status, 404)
-        done()
-      })
+    it('should return 404 if .meta is not found', async function () {
+      try {
+        await ldp.readContainerMeta('resources/')
+      } catch (err) {
+        return assert.equal(err.status, 404)
+      }
+      assert.ok(false) // Should not come here
     })
 
-    it('should return content if metaFile exists', function (done) {
+    it('should return content if metaFile exists', async () => {
       // file can be empty as well
       write('This function just reads this, does not parse it', '.meta')
-      ldp.readContainerMeta(path.join(__dirname, '../resources/'), function (err, metaFile) {
-        rm('.meta')
-        assert.notOk(err)
-        assert.equal(metaFile, 'This function just reads this, does not parse it')
-        done()
-      })
+      const metaFile = await ldp.readContainerMeta(path.join(__dirname, '../resources/'))
+      rm('.meta')
+      assert.equal(metaFile, 'This function just reads this, does not parse it')
     })
 
-    it('should work also if trailing `/` is not passed', function (done) {
+    it('should work also if trailing `/` is not passed', async () => {
       // file can be empty as well
       write('This function just reads this, does not parse it', '.meta')
-      ldp.readContainerMeta(path.join(__dirname, '../resources'), function (err, metaFile) {
-        rm('.meta')
-        assert.notOk(err)
-        assert.equal(metaFile, 'This function just reads this, does not parse it')
-        done()
-      })
+      const metaFile = await ldp.readContainerMeta(path.join(__dirname, '../resources'))
+      rm('.meta')
+      assert.equal(metaFile, 'This function just reads this, does not parse it')
     })
   })
 
@@ -253,7 +249,7 @@ describe('LDP', function () {
           .each(
             $rdf.sym('https://server.tld/containerFile.ttl'),
             ns.rdf('type'),
-          undefined
+            undefined
           )
           .map(d => { return d.uri })
 
