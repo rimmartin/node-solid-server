@@ -10,9 +10,7 @@ set NODE_TLS_REJECT_UNAUTHORIZED=0
 )
 for %%F in (%filename%) do set dirname=%%~dpF
 
-
 set _tail=%*
 call set _tail=%%_tail:*%1=%%
-echo %_tail%
 
 call %dirname%solid.cmd %COMMAND% %ADD_FLAGS% %_tail%
