@@ -1,7 +1,7 @@
 const supertest = require('supertest')
 const ldnode = require('../../index')
 const path = require('path')
-const { cleanDir } = require('../utils')
+const { cleanDir, cp } = require('../utils')
 const expect = require('chai').expect
 
 describe('OIDC error handling', function () {
@@ -25,7 +25,10 @@ describe('OIDC error handling', function () {
   })
 
   before(function (done) {
-    ldpHttpsServer = ldp.listen(3457, done)
+    ldpHttpsServer = ldp.listen(3457, () => {
+      cp(path.join('accounts/errortests', '.acl-override'), path.join('accounts/errortests', '.acl'))
+      done()
+    })
   })
 
   after(function () {
@@ -90,6 +93,12 @@ describe('OIDC error handling', function () {
           .set('Authorization', 'Bearer ' + expiredToken)
           .expect('WWW-Authenticate', 'Bearer realm="https://localhost:3457", scope="openid webid", error="invalid_token", error_description="Access token is expired"')
           .expect(401)
+      })
+
+      it('should return a 200 if the resource is public', () => {
+        return server.get('/public/')
+          .set('Authorization', 'Bearer ' + expiredToken)
+          .expect(200)
       })
     })
   })

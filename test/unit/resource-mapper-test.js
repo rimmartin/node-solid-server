@@ -11,7 +11,11 @@ const itMapsFile = asserter(mapsFile)
 
 describe('ResourceMapper', () => {
   describe('A ResourceMapper instance for a single-host setup', () => {
-    const mapper = new ResourceMapper({ rootUrl, rootPath })
+    const mapper = new ResourceMapper({
+      rootUrl,
+      rootPath,
+      includeHost: false
+    })
 
     // PUT base cases from https://www.w3.org/DesignIssues/HTTPFilenameMapping.html
 
@@ -93,6 +97,28 @@ describe('ResourceMapper', () => {
         contentType: 'image/jpeg'
       })
 
+    itMapsUrl(mapper, 'a URL with an overridden extension that matches the content type',
+      {
+        url: 'http://localhost/space/foo.acl',
+        contentType: 'text/turtle',
+        createIfNotExists: true
+      },
+      {
+        path: `${rootPath}space/foo.acl`,
+        contentType: 'text/turtle'
+      })
+
+    itMapsUrl(mapper, 'a URL with an alternative overridden extension that matches the content type',
+      {
+        url: 'http://localhost/space/foo.acl',
+        contentType: 'text/n3',
+        createIfNotExists: true
+      },
+      {
+        path: `${rootPath}space/foo.acl$.n3`,
+        contentType: 'text/n3'
+      })
+
     // GET/HEAD/POST/DELETE/PATCH base cases
 
     itMapsUrl(mapper, 'a URL of a non-existing file',
@@ -100,7 +126,7 @@ describe('ResourceMapper', () => {
         url: 'http://localhost/space/foo.html'
       },
       [/* no files */],
-      new Error('File not found'))
+      new Error('Resource not found: /space/foo.html'))
 
     itMapsUrl(mapper, 'a URL of an existing file with extension',
       {
@@ -187,6 +213,161 @@ describe('ResourceMapper', () => {
         contentType: 'text/html'
       })
 
+    itMapsUrl(mapper, 'a URL of an existing .acl file',
+      {
+        url: 'http://localhost/space/.acl'
+      },
+      [
+        `${rootPath}space/.acl`
+      ],
+      {
+        path: `${rootPath}space/.acl`,
+        contentType: 'text/turtle'
+      })
+
+    itMapsUrl(mapper, 'a URL of an existing .acl file with a different content type',
+      {
+        url: 'http://localhost/space/.acl'
+      },
+      [
+        `${rootPath}space/.acl$.n3`
+      ],
+      {
+        path: `${rootPath}space/.acl$.n3`,
+        contentType: 'text/n3'
+      })
+
+    itMapsUrl(mapper, 'a URL ending with a slash when index.html is available',
+      {
+        url: 'http://localhost/space/',
+        contentType: 'text/html'
+      },
+      [
+        `${rootPath}space/index.html`,
+        `${rootPath}space/index$.ttl`
+      ],
+      {
+        path: `${rootPath}space/index.html`,
+        contentType: 'text/html'
+      })
+
+    itMapsUrl(mapper, 'a URL ending with a slash when index.ttl is available',
+      {
+        url: 'http://localhost/space/'
+      },
+      [
+        `${rootPath}space/index.ttl`
+      ],
+      {
+        path: `${rootPath}space/`,
+        contentType: 'application/octet-stream'
+      })
+
+    itMapsUrl(mapper, 'a URL ending with a slash when index$.html is available',
+      {
+        url: 'http://localhost/space/'
+      },
+      [
+        `${rootPath}space/index$.html`,
+        `${rootPath}space/index$.ttl`
+      ],
+      {
+        path: `${rootPath}space/`,
+        contentType: 'application/octet-stream'
+      })
+
+    itMapsUrl(mapper, 'a URL ending with a slash when index$.ttl is available',
+      {
+        url: 'http://localhost/space/'
+      },
+      [
+        `${rootPath}space/index$.ttl`
+      ],
+      {
+        path: `${rootPath}space/`,
+        contentType: 'application/octet-stream'
+      })
+
+    itMapsUrl(mapper, 'a URL ending with a slash to a folder when index.html is available but index is skipped',
+      {
+        url: 'http://localhost/space/',
+        searchIndex: false
+      },
+      [
+        `${rootPath}space/index.html`,
+        `${rootPath}space/index$.ttl`
+      ],
+      {
+        path: `${rootPath}space/`,
+        contentType: 'application/octet-stream'
+      })
+
+    itMapsUrl(mapper, 'a URL ending with a slash to a folder when no index is available',
+      {
+        url: 'http://localhost/space/'
+      },
+      {
+        path: `${rootPath}space/`,
+        contentType: 'application/octet-stream'
+      })
+
+    itMapsUrl(mapper, 'a URL of that has an accompanying acl file, but no actual file',
+      {
+        url: 'http://localhost/space/'
+      },
+      [
+        `${rootPath}space/index.acl`
+      ],
+      {
+        path: `${rootPath}space/`,
+        contentType: 'application/octet-stream'
+      })
+
+    itMapsUrl(mapper, 'a URL ending with a slash for text/html when index.html is not available',
+      {
+        url: 'http://localhost/space/',
+        contentType: 'text/html',
+        createIfNotExists: true
+      },
+      {
+        path: `${rootPath}space/index.html`,
+        contentType: 'text/html'
+      })
+
+    itMapsUrl(mapper, 'a URL of that has an accompanying meta file, but no actual file',
+      {
+        url: 'http://localhost/space/',
+        contentType: 'text/html',
+        createIfNotExists: true
+      },
+      [
+        `${rootPath}space/index.meta`
+      ],
+      {
+        path: `${rootPath}space/index.html`,
+        contentType: 'text/html'
+      })
+
+    itMapsUrl(mapper, 'a URL ending with a slash to a folder when index is skipped',
+      {
+        url: 'http://localhost/space/',
+        contentType: 'application/octet-stream',
+        createIfNotExists: true,
+        searchIndex: false
+      },
+      {
+        path: `${rootPath}space/`,
+        contentType: 'application/octet-stream'
+      })
+
+    itMapsUrl(mapper, 'a URL ending with a slash for text/turtle',
+      {
+        url: 'http://localhost/space/',
+        contentType: 'text/turtle',
+        createIfNotExists: true
+      },
+      new Error('Index file needs to have text/html as content type'))
+
     // Security cases
 
     itMapsUrl(mapper, 'a URL with an unknown content type',
@@ -225,6 +406,13 @@ describe('ResourceMapper', () => {
       { path: `${rootPath}space/foo.ttl` },
       {
         url: 'http://localhost/space/foo.ttl',
+        contentType: 'text/turtle'
+      })
+
+    itMapsFile(mapper, 'an ACL file',
+      { path: `${rootPath}space/.acl` },
+      {
+        url: 'http://localhost/space/.acl',
         contentType: 'text/turtle'
       })
 
@@ -306,6 +494,34 @@ describe('ResourceMapper', () => {
         contentType: 'text/html'
       })
 
+    itMapsUrl(mapper, 'a URL with a host specified as a URL object',
+      {
+        url: {
+          hostname: 'example.org',
+          path: '/space/foo.html'
+        },
+        contentType: 'text/html',
+        createIfNotExists: true
+      },
+      {
+        path: `${rootPath}example.org/space/foo.html`,
+        contentType: 'text/html'
+      })
+
+    itMapsUrl(mapper, 'a URL with a host specified as an Express request object',
+      {
+        url: {
+          hostname: 'example.org',
+          pathname: '/space/foo.html'
+        },
+        contentType: 'text/html',
+        createIfNotExists: true
+      },
+      {
+        path: `${rootPath}example.org/space/foo.html`,
+        contentType: 'text/html'
+      })
+
     itMapsUrl(mapper, 'a URL with a host with a port',
       {
         url: 'http://example.org:3000/space/foo.html',
@@ -319,7 +535,7 @@ describe('ResourceMapper', () => {
 
     itMapsFile(mapper, 'a file on a host',
       {
-        path: `${rootPath}space/foo.html`,
+        path: `${rootPath}example.org/space/foo.html`,
         hostname: 'example.org'
       },
       {
@@ -334,7 +550,7 @@ describe('ResourceMapper', () => {
 
     itMapsFile(mapper, 'a file on a host',
       {
-        path: `${rootPath}space/foo.html`,
+        path: `${rootPath}example.org/space/foo.html`,
         hostname: 'example.org'
       },
       {
@@ -348,10 +564,11 @@ describe('ResourceMapper', () => {
 
     itMapsFile(mapper, 'a file with the port',
       {
-        path: `${rootPath}space/foo.html`
+        path: `${rootPath}example.org/space/foo.html`,
+        hostname: 'example.org'
       },
       {
-        url: 'http://localhost:81/space/foo.html',
+        url: 'http://localhost:81/example.org/space/foo.html',
         contentType: 'text/html'
       })
   })
@@ -361,7 +578,7 @@ describe('ResourceMapper', () => {
 
     itMapsFile(mapper, 'a file with the port',
       {
-        path: `${rootPath}space/foo.html`,
+        path: `${rootPath}example.org/space/foo.html`,
         hostname: 'example.org'
       },
       {
@@ -375,10 +592,11 @@ describe('ResourceMapper', () => {
 
     itMapsFile(mapper, 'a file with the port',
       {
-        path: `${rootPath}space/foo.html`
+        path: `${rootPath}example.org/space/foo.html`,
+        hostname: 'example.org'
       },
       {
-        url: 'https://localhost:81/space/foo.html',
+        url: 'https://localhost:81/example.org/space/foo.html',
         contentType: 'text/html'
       })
   })
@@ -388,13 +606,24 @@ describe('ResourceMapper', () => {
 
     itMapsFile(mapper, 'a file with the port',
       {
-        path: `${rootPath}space/foo.html`,
+        path: `${rootPath}example.org/space/foo.html`,
         hostname: 'example.org'
       },
       {
         url: 'https://example.org:81/space/foo.html',
         contentType: 'text/html'
       })
+  })
+
+  describe('A ResourceMapper instance for an HTTPS host with non-default port in a multi-host setup', () => {
+    const mapper = new ResourceMapper({ rootUrl: 'https://localhost:81/', rootPath, includeHost: true })
+
+    it('throws an error when there is an improper file path', () => {
+      return expect(mapper.mapFileToUrl({
+        path: `${rootPath}example.orgspace/foo.html`,
+        hostname: 'example.org'
+      })).to.be.rejectedWith(Error, 'Path must start with hostname (/example.org)')
+    })
   })
 })
 
@@ -415,7 +644,7 @@ function mapsUrl (it, mapper, label, options, files, expected) {
   // Mock filesystem
   function mockReaddir () {
     mapper._readdir = async (path) => {
-      expect(path).to.equal(`${rootPath}space/`)
+      expect(path.startsWith(`${rootPath}space/`)).to.equal(true)
       return files.map(f => f.replace(/.*\//, ''))
     }
   }
